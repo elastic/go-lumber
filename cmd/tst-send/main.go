@@ -10,7 +10,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/urso/go-lumber/client/v2"
+	"github.com/elastic/go-lumber/client/v2"
 )
 
 func main() {

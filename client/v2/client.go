@@ -11,7 +11,7 @@ import (
 
 	"github.com/klauspost/compress/zlib"
 
-	protocol "github.com/urso/go-lumber/protocol/v2"
+	protocol "github.com/elastic/go-lumber/protocol/v2"
 )
 
 // Clients implements the low-level lumberjack protocol.

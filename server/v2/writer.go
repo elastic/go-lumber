@@ -5,7 +5,7 @@ import (
 	"net"
 	"time"
 
-	protocol "github.com/urso/go-lumber/protocol/v2"
+	protocol "github.com/elastic/go-lumber/protocol/v2"
 )
 
 type writer struct {
