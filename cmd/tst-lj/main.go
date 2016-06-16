@@ -1,3 +1,10 @@
+// Lumberjack server test tool.
+//
+// Create lumberjack server endpoint ACKing all received batches only. The
+// server supports all lumberjack protocol versions, which must be explicitely enabled
+// from command line. For printing list of known command line flags run:
+//
+//  tst-lj -h
 package main
 
 import (

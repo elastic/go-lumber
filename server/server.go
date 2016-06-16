@@ -13,16 +13,18 @@ import (
 	"github.com/elastic/go-lumber/server/v2"
 )
 
+// Server serves multiple lumberjack clients.
 type Server interface {
 	// ReceiveChan returns a channel all received batch requests will be made
-	// available on.
+	// available on. Batches read from channel must be ACKed.
 	ReceiveChan() <-chan *lj.Batch
 
 	// Receive returns the next received batch from the receiver channel.
+	// Batches returned by Receive must be ACKed.
 	Receive() *lj.Batch
 
 	// Close stops the listener, closes all active connections and closes the
-	// receiver channerl returned from ReceiveChan()
+	// receiver channel returned from ReceiveChan()
 	Close() error
 }
 
@@ -44,13 +46,20 @@ type muxServer struct {
 }
 
 var (
+	// ErrNoVersionEnabled indicates no lumberjack protocol version being enabled
+	// when instantiating a server.
 	ErrNoVersionEnabled = errors.New("No protocol version enabled")
 )
 
+// NewWithListener creates a new Server using an existing net.Listener. Use
+// options V1 and V2 to enable wanted protocol versions.
 func NewWithListener(l net.Listener, opts ...Option) (Server, error) {
 	return newServer(l, opts...)
 }
 
+// ListenAndServeWith uses binder to create a listener for establishing a lumberjack
+// endpoint.
+// Use options V1 and V2 to enable wanted protocol versions.
 func ListenAndServeWith(
 	binder func(network, addr string) (net.Listener, error),
 	addr string,
@@ -67,6 +76,9 @@ func ListenAndServeWith(
 	return s, err
 }
 
+// ListenAndServe listens on the TCP network address addr and handles batch
+// requests from accepted lumberjack clients.
+// Use options V1 and V2 to enable wanted protocol versions.
 func ListenAndServe(addr string, opts ...Option) (Server, error) {
 	o, err := applyOptions(opts)
 	if err != nil {
@@ -83,6 +95,8 @@ func ListenAndServe(addr string, opts ...Option) (Server, error) {
 	return ListenAndServeWith(binder, addr, opts...)
 }
 
+// Close stops the listener, closes all active connections and closes the
+// receiver channel returned from ReceiveChan()
 func (s *server) Close() error {
 	close(s.done)
 	for _, m := range s.mux {
@@ -96,10 +110,14 @@ func (s *server) Close() error {
 	return err
 }
 
+// ReceiveChan returns a channel all received batch requests will be made
+// available on. Batches read from channel must be ACKed.
 func (s *server) ReceiveChan() <-chan *lj.Batch {
 	return s.ch
 }
 
+// Receive returns the next received batch from the receiver channel.
+// Batches returned by Receive must be ACKed.
 func (s *server) Receive() *lj.Batch {
 	select {
 	case <-s.done:

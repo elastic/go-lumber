@@ -14,7 +14,8 @@ import (
 	protocol "github.com/elastic/go-lumber/protocol/v2"
 )
 
-// Clients implements the low-level lumberjack protocol.
+// Client implements the low-level lumberjack wire protocol. SyncClient and
+// AsyncClient should be used for publishing events to lumberjack endpoint.
 type Client struct {
 	conn net.Conn
 	wb   *bytes.Buffer
@@ -36,7 +37,8 @@ var (
 	ErrProtocolError = errors.New("lumberjack protocol error")
 )
 
-// Create new client with active connection
+// NewWithConn create a new lumberjack client with an existing and active
+// connection.
 func NewWithConn(c net.Conn, opts ...Option) (*Client, error) {
 	o, err := applyOptions(opts)
 	if err != nil {
@@ -49,8 +51,8 @@ func NewWithConn(c net.Conn, opts ...Option) (*Client, error) {
 	}, nil
 }
 
-// Dial up to lumberjack server and return new Client. Returns error
-// if connection fails
+// Dial connects to the lumberjack server and returns new Client.
+// Returns an error if connection attempt fails.
 func Dial(address string, opts ...Option) (*Client, error) {
 	o, err := applyOptions(opts)
 	if err != nil {
@@ -61,8 +63,8 @@ func Dial(address string, opts ...Option) (*Client, error) {
 	return DialWith(dialer.Dial, address, opts...)
 }
 
-// DialWith uses provided dialer to connecto to lumberjack server returning a
-// new Client. Returns error if connection fails.
+// DialWith uses provided dialer to connect to lumberjack server returning a
+// new Client. Returns error if connection attempt fails.
 func DialWith(
 	dial func(network, address string) (net.Conn, error),
 	address string,
@@ -86,7 +88,8 @@ func (c *Client) Close() error {
 	return c.conn.Close()
 }
 
-// Send sends all data without waiting for ACK
+// Send attempts to JSON-encode and send all events without waiting for ACK.
+// Returns error if sending or serialization fails.
 func (c *Client) Send(data []interface{}) error {
 	if len(data) == 0 {
 		return nil
@@ -153,7 +156,7 @@ func (c *Client) Send(data []interface{}) error {
 
 // ReceiveACK awaits and reads next ACK response or error. Note: Server might
 // send partial ACK, in which case client must continue reading ACKs until last send
-// window size is matched.
+// window size is matched. Use AwaitACK when waiting for a known sequence number.
 func (c *Client) ReceiveACK() (uint32, error) {
 	if err := c.setReadDeadline(); err != nil {
 		return 0, err

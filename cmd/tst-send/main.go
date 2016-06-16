@@ -1,3 +1,8 @@
+// Test client pushing precomputed batch of events.
+//
+// For list of known command line flags run:
+//
+//  tst-send -h
 package main
 
 import (

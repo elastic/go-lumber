@@ -4,11 +4,13 @@ import (
 	"errors"
 	"net"
 
+	"github.com/elastic/go-lumber/lj"
 	"github.com/elastic/go-lumber/server/internal"
 )
 
+// Server serves multiple lumberjack clients supporting protocol version 2.
 type Server struct {
-	*internal.Server
+	s *internal.Server
 }
 
 var (
@@ -17,12 +19,15 @@ var (
 	ErrProtocolError = errors.New("lumberjack protocol error")
 )
 
+// NewWithListener creates a new Server using an existing net.Listener.
 func NewWithListener(l net.Listener, opts ...Option) (*Server, error) {
 	return newServer(opts, func(cfg internal.Config) (*internal.Server, error) {
 		return internal.NewWithListener(l, cfg)
 	})
 }
 
+// ListenAndServeWith uses binder to create a listener for establishing a lumberjack
+// endpoint.
 func ListenAndServeWith(
 	binder func(network, addr string) (net.Listener, error),
 	addr string,
@@ -33,10 +38,30 @@ func ListenAndServeWith(
 	})
 }
 
+// ListenAndServe listens on the TCP network address addr and handles batch
+// requests from accepted lumberjack clients.
 func ListenAndServe(addr string, opts ...Option) (*Server, error) {
 	return newServer(opts, func(cfg internal.Config) (*internal.Server, error) {
 		return internal.ListenAndServe(addr, cfg)
 	})
+}
+
+// ReceiveChan returns a channel all received batch requests will be made
+// available on. Batches read from channel must be ACKed.
+func (s *Server) ReceiveChan() <-chan *lj.Batch {
+	return s.s.ReceiveChan()
+}
+
+// Receive returns the next received batch from the receiver channel.
+// Batches returned by Receive must be ACKed.
+func (s *Server) Receive() *lj.Batch {
+	return s.s.Receive()
+}
+
+// Close stops the listener, closes all active connections and closes the
+// receiver channel returned from ReceiveChan()
+func (s *Server) Close() error {
+	return s.s.Close()
 }
 
 func newServer(

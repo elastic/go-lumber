@@ -17,8 +17,8 @@ type options struct {
 
 type jsonEncoder func(interface{}) ([]byte, error)
 
-// JsonEncoder client option configuring the encoder used to convert events
-// to json.
+// JSONEncoder client option configuring the encoder used to convert events
+// to json. The default is `json.Marshal`.
 func JSONEncoder(encoder func(interface{}) ([]byte, error)) Option {
 	return func(opt *options) error {
 		opt.encoder = encoder
@@ -37,7 +37,7 @@ func Timeout(to time.Duration) Option {
 	}
 }
 
-// CompressionLevel client option setting the compression level (0 to 9)
+// CompressionLevel client option setting the gzip compression level (0 to 9).
 func CompressionLevel(l int) Option {
 	return func(opt *options) error {
 		if !(0 <= l && l <= 9) {
