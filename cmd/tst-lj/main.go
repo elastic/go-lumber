@@ -7,7 +7,7 @@ import (
 	"os/signal"
 	"time"
 
-	"github.com/urso/go-lumber/server"
+	"github.com/elastic/go-lumber/server"
 )
 
 type rateLimiter struct {

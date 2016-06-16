@@ -4,7 +4,7 @@ import (
 	"errors"
 	"net"
 
-	"github.com/urso/go-lumber/server/internal"
+	"github.com/elastic/go-lumber/server/internal"
 )
 
 type Server struct {

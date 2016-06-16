@@ -5,8 +5,8 @@ import (
 	"sync"
 	"time"
 
-	"github.com/urso/go-lumber/lj"
-	"github.com/urso/go-lumber/log"
+	"github.com/elastic/go-lumber/lj"
+	"github.com/elastic/go-lumber/log"
 )
 
 type defaultHandler struct {

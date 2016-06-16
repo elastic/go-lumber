@@ -7,10 +7,10 @@ import (
 	"net"
 	"sync"
 
-	"github.com/urso/go-lumber/lj"
-	"github.com/urso/go-lumber/log"
-	"github.com/urso/go-lumber/server/v1"
-	"github.com/urso/go-lumber/server/v2"
+	"github.com/elastic/go-lumber/lj"
+	"github.com/elastic/go-lumber/log"
+	"github.com/elastic/go-lumber/server/v1"
+	"github.com/elastic/go-lumber/server/v2"
 )
 
 type Server interface {

@@ -9,9 +9,9 @@ import (
 
 	"github.com/klauspost/compress/zlib"
 
-	"github.com/urso/go-lumber/lj"
-	"github.com/urso/go-lumber/log"
-	protocol "github.com/urso/go-lumber/protocol/v2"
+	"github.com/elastic/go-lumber/lj"
+	"github.com/elastic/go-lumber/log"
+	protocol "github.com/elastic/go-lumber/protocol/v2"
 )
 
 type reader struct {

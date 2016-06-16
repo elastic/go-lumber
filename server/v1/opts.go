@@ -5,7 +5,7 @@ import (
 	"errors"
 	"time"
 
-	"github.com/urso/go-lumber/lj"
+	"github.com/elastic/go-lumber/lj"
 )
 
 type Option func(*options) error

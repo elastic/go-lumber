@@ -6,8 +6,8 @@ import (
 	"net"
 	"sync"
 
-	"github.com/urso/go-lumber/lj"
-	"github.com/urso/go-lumber/log"
+	"github.com/elastic/go-lumber/lj"
+	"github.com/elastic/go-lumber/log"
 )
 
 type Server struct {
