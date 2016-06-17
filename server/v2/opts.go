@@ -9,6 +9,7 @@ import (
 	"github.com/elastic/go-lumber/lj"
 )
 
+// Option type for configuring server run options.
 type Option func(*options) error
 
 type options struct {
@@ -19,6 +20,8 @@ type options struct {
 	ch        chan *lj.Batch
 }
 
+// Keepalive configures the keepalive interval returning an ACK of length 0 to
+// lumberjack client, notifying clients the batch being still active.
 func Keepalive(kl time.Duration) Option {
 	return func(opt *options) error {
 		if kl < 0 {
@@ -29,6 +32,7 @@ func Keepalive(kl time.Duration) Option {
 	}
 }
 
+// Timeout configures server network timeouts.
 func Timeout(to time.Duration) Option {
 	return func(opt *options) error {
 		if to < 0 {
@@ -39,6 +43,8 @@ func Timeout(to time.Duration) Option {
 	}
 }
 
+// Channel option is used to register custom channel received batches will be
+// forwarded to.
 func Channel(c chan *lj.Batch) Option {
 	return func(opt *options) error {
 		opt.ch = c
@@ -46,6 +52,7 @@ func Channel(c chan *lj.Batch) Option {
 	}
 }
 
+// TLS enables and configures TLS support in lumberjack server.
 func TLS(tls *tls.Config) Option {
 	return func(opt *options) error {
 		opt.tls = tls
@@ -53,6 +60,8 @@ func TLS(tls *tls.Config) Option {
 	}
 }
 
+// JSONDecoder sets an alternative json decoder for parsing events.
+// The default is json.Unmarshal.
 func JSONDecoder(decoder func([]byte, interface{}) error) Option {
 	return func(opt *options) error {
 		opt.decoder = decoder

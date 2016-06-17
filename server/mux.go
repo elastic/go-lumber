@@ -21,6 +21,7 @@ type versionConn struct {
 }
 
 var (
+	// ErrListenerClosed indicates the multiplexing network listener being closed.
 	ErrListenerClosed = errors.New("listener closed")
 )
 
