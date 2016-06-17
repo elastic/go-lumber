@@ -1,2 +1,2 @@
-// Lumberjack client and server implementation.
+// Package lumber provides lumberjack client and server implementations.
 package lumber

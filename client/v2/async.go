@@ -6,8 +6,8 @@ import (
 	"sync"
 )
 
-// AsyncClient asynchronously publishes events to lumberjack enpoint. On ACK a
-// provided callback function will be called. The number of inflight publish
+// AsyncClient asynchronously publishes events to lumberjack endpoint. On ACK a
+// provided callback function will be called. The number of in-flight publish
 // requests is configurable but limited. Once the limit has been reached, the
 // client will block publish requests until the lumberjack server did ACK some
 // queued publish requests.
@@ -26,7 +26,7 @@ type ackMessage struct {
 }
 
 // AsyncSendCallback callback function. Upon completion seq contains the last
-// ACKed event's index. The count starts with 1. The err argument contains the laster
+// ACKed event's index. The count starts with 1. The err argument contains the latest
 // error encountered by lumberjack client.
 //
 // Note: The callback MUST not block. In case callback is trying to republish
@@ -97,7 +97,7 @@ func (c *AsyncClient) Close() error {
 
 // Send publishes a new batch of events by JSON-encoding given batch.
 // Send blocks if maximum number of allowed asynchrounous calls is still active.
-// Upon completion cb will be called with last ACked index into active batch.
+// Upon completion cb will be called with last ACKed index into active batch.
 // Returns error if communication or serialization to JSON failed.
 func (c *AsyncClient) Send(cb AsyncSendCallback, data []interface{}) error {
 	if err := c.cl.Send(data); err != nil {

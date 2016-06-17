@@ -1,4 +1,4 @@
-// Common lumberjack types and functions.
+// Package lj implements common lumberjack types and functions.
 package lj
 
 // Batch is an ACK-able batch of events as has been received by lumberjack

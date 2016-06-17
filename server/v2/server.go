@@ -59,7 +59,7 @@ func (s *Server) Receive() *lj.Batch {
 }
 
 // Close stops the listener, closes all active connections and closes the
-// receiver channel returned from ReceiveChan()
+// receiver channel returned from ReceiveChan().
 func (s *Server) Close() error {
 	return s.s.Close()
 }

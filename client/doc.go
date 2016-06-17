@@ -1,2 +1,2 @@
-// Lumberjack client implementations.
+// Package client implementing lumberjack clients.
 package client

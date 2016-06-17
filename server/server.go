@@ -24,7 +24,7 @@ type Server interface {
 	Receive() *lj.Batch
 
 	// Close stops the listener, closes all active connections and closes the
-	// receiver channel returned from ReceiveChan()
+	// receiver channel returned from ReceiveChan().
 	Close() error
 }
 

@@ -54,7 +54,7 @@ func (c *SyncClient) Close() error {
 }
 
 // Send publishes a new batch of events by JSON-encoding given batch.
-// Send blocks until the complete batch has been ACked by lumberjack server or
+// Send blocks until the complete batch has been ACKed by lumberjack server or
 // some error happened.
 func (c *SyncClient) Send(data []interface{}) (int, error) {
 	if err := c.cl.Send(data); err != nil {

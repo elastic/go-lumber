@@ -1,4 +1,4 @@
-// Lumberjack protocol version 2 client implementations.
+// Package v2 implements clients supporting lumberjack protocol version 2.
 //
 // This package provides the low level `Client` handling the wire-format only,
 // plus `SyncClient` and AsyncClient. SyncClient and AsyncClient do provide
