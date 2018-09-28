@@ -70,53 +70,61 @@ func (r *reader) ReadBatch() (*lj.Batch, error) {
 		return nil, err
 	}
 
-	events, err := r.readEvents(r.in, make([]interface{}, 0, count))
+	events, seq, err := r.readEvents(r.in, make([]interface{}, 0, count))
 	if events == nil || err != nil {
 		log.Printf("readEvents failed with: %v", err)
 		return nil, err
 	}
 
-	return lj.NewBatch(events), nil
+	return lj.NewBatchWithSequence(events, seq), nil
 }
 
-func (r *reader) readEvents(in io.Reader, events []interface{}) ([]interface{}, error) {
+func (r *reader) readEvents(in io.Reader, events []interface{}) ([]interface{}, uint32, error) {
+	var seq uint32 = 0
 	for len(events) < cap(events) {
 		var hdr [2]byte
 		if err := readFull(in, hdr[:]); err != nil {
-			return nil, err
+			return nil, 0, err
 		}
 
 		if hdr[0] != protocol.CodeVersion {
 			log.Println("Event protocol version error")
-			return nil, ErrProtocolError
+			return nil, 0, ErrProtocolError
 		}
 
 		switch hdr[1] {
 		case protocol.CodeDataFrame:
-			event, err := r.readEvent(in)
+			event, tmpseq, err := r.readEvent(in)
 			if err != nil {
 				log.Printf("failed to read json event with: %v\n", err)
-				return nil, err
+				return nil, 0, err
+			}
+			if tmpseq > seq {
+				seq = tmpseq
 			}
 			events = append(events, event)
 		case protocol.CodeCompressed:
-			readEvents, err := r.readCompressed(in, events)
+			readEvents, tmpseq, err := r.readCompressed(in, events)
 			if err != nil {
-				return nil, err
+				return nil, 0, err
+			}
+			if tmpseq > seq {
+				seq = tmpseq
 			}
 			events = readEvents
 		default:
 			log.Printf("Unknown frame type: %v", hdr[1])
-			return nil, ErrProtocolError
+			return nil, 0, ErrProtocolError
 		}
 	}
-	return events, nil
+	return events, seq, nil
 }
 
-func (r *reader) readCompressed(in io.Reader, events []interface{}) ([]interface{}, error) {
+func (r *reader) readCompressed(in io.Reader, events []interface{}) ([]interface{}, uint32, error) {
+	var seq uint32
 	var hdr [4]byte
 	if err := readFull(in, hdr[:]); err != nil {
-		return nil, err
+		return nil, 0, err
 	}
 
 	payloadSz := binary.BigEndian.Uint32(hdr[:])
@@ -124,16 +132,16 @@ func (r *reader) readCompressed(in io.Reader, events []interface{}) ([]interface
 	reader, err := zlib.NewReader(limit)
 	if err != nil {
 		log.Printf("Failed to initialized zlib reader %v\n", err)
-		return nil, err
+		return nil, 0, err
 	}
 
-	events, err = r.readEvents(reader, events)
+	events, seq, err = r.readEvents(reader, events)
 	if err != nil {
 		_ = reader.Close()
-		return nil, err
+		return nil, 0, err
 	}
 	if err := reader.Close(); err != nil {
-		return nil, err
+		return nil, 0, err
 	}
 
 	// consume final bytes from limit reader
@@ -141,18 +149,18 @@ func (r *reader) readCompressed(in io.Reader, events []interface{}) ([]interface
 		var tmp [16]byte
 		if _, err := limit.Read(tmp[:]); err != nil {
 			if err != io.EOF {
-				return nil, err
+				return nil, 0, err
 			}
 			break
 		}
 	}
-	return events, nil
+	return events, seq, nil
 }
 
-func (r *reader) readEvent(in io.Reader) (interface{}, error) {
+func (r *reader) readEvent(in io.Reader) (interface{}, uint32, error) {
 	var hdr [8]byte
 	if err := readFull(in, hdr[:]); err != nil {
-		return nil, err
+		return nil, 0, err
 	}
 
 	readString := func() (string, error) {
@@ -174,22 +182,23 @@ func (r *reader) readEvent(in io.Reader) (interface{}, error) {
 		return string(buf[:]), nil
 	}
 
+	seq := binary.BigEndian.Uint32(hdr[0:4])
 	event := map[string]string{}
 	pairs := int(binary.BigEndian.Uint32(hdr[4:]))
 	for i := 0; i < pairs; i++ {
 		k, err := readString()
 		if err != nil {
-			return nil, err
+			return nil, 0, err
 		}
 
 		v, err := readString()
 		if err != nil {
-			return nil, err
+			return nil, 0, err
 		}
 
 		event[k] = v
 	}
-	return event, nil
+	return event, seq, nil
 }
 
 func readFull(in io.Reader, buf []byte) error {

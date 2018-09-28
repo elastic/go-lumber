@@ -157,6 +157,7 @@ func newServer(l net.Listener, opts ...Option) (Server, error) {
 	if cfg.v1 {
 		servers = append(servers, func(l net.Listener) (Server, byte, error) {
 			s, err := v1.NewWithListener(l,
+				v1.Keepalive(cfg.keepalive),
 				v1.Timeout(cfg.timeout),
 				v1.Channel(cfg.ch),
 				v1.TLS(cfg.tls))

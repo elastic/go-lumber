@@ -56,6 +56,5 @@ func (w *writer) ACK(n int) error {
 }
 
 func (w *writer) Keepalive(n int) error {
-	// keepalive not supported by v1
-	return nil
+	return w.ACK(n)
 }

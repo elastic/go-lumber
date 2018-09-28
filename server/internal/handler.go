@@ -144,6 +144,7 @@ func (h *defaultHandler) ackLoop() {
 				return
 			}
 			if err := h.waitACK(b); err != nil {
+				log.Printf("wait ACK error %v", err)
 				return
 			}
 		}
@@ -152,6 +153,10 @@ func (h *defaultHandler) ackLoop() {
 
 func (h *defaultHandler) waitACK(batch *lj.Batch) error {
 	n := len(batch.Events)
+	//for v1, use sequence number to response
+	if batch.Sequence > 0 {
+		n = int(batch.Sequence)
+	}
 
 	if h.keepalive <= 0 {
 		for {

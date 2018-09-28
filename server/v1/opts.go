@@ -29,9 +29,10 @@ import (
 type Option func(*options) error
 
 type options struct {
-	timeout time.Duration
-	tls     *tls.Config
-	ch      chan *lj.Batch
+	timeout   time.Duration
+	keepalive time.Duration
+	tls       *tls.Config
+	ch        chan *lj.Batch
 }
 
 // Timeout configures server network timeouts.
@@ -41,6 +42,18 @@ func Timeout(to time.Duration) Option {
 			return errors.New("timeouts must not be negative")
 		}
 		opt.timeout = to
+		return nil
+	}
+}
+
+// Keepalive configures the keepalive interval returning an ACK of length 0 to
+// lumberjack client, notifying clients the batch being still active.
+func Keepalive(kl time.Duration) Option {
+	return func(opt *options) error {
+		if kl < 0 {
+			return errors.New("keepalive must not be negative")
+		}
+		opt.keepalive = kl
 		return nil
 	}
 }
@@ -65,8 +78,9 @@ func Channel(c chan *lj.Batch) Option {
 
 func applyOptions(opts []Option) (options, error) {
 	o := options{
-		timeout: 30 * time.Second,
-		tls:     nil,
+		timeout:   30 * time.Second,
+		keepalive: 3 * time.Second,
+		tls:       nil,
 	}
 
 	for _, opt := range opts {

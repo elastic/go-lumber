@@ -24,11 +24,19 @@ package lj
 type Batch struct {
 	Events []interface{}
 	ack    chan struct{}
+
+	// compatible for v1
+	Sequence uint32 //record the sequence number for the last events
 }
 
 // NewBatch creates a new ACK-able batch.
 func NewBatch(evts []interface{}) *Batch {
-	return &Batch{evts, make(chan struct{})}
+	return &Batch{Events: evts, ack: make(chan struct{})}
+}
+
+// NewBatch creates a new ACK-able batch with a sequence.
+func NewBatchWithSequence(evts []interface{}, seq uint32) *Batch {
+	return &Batch{Events: evts, ack: make(chan struct{}), Sequence: seq}
 }
 
 // ACK acknowledges a batch initiating propagation of ACK to clients.
