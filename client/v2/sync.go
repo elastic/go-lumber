@@ -74,10 +74,11 @@ func (c *SyncClient) Close() error {
 // Send blocks until the complete batch has been ACKed by lumberjack server or
 // some error happened.
 func (c *SyncClient) Send(data []interface{}) (int, error) {
-	if err := c.cl.Send(data); err != nil {
+	dropped, err := c.cl.Send(data)
+	if err != nil {
 		return 0, err
 	}
 
-	seq, err := c.cl.AwaitACK(uint32(len(data)))
-	return int(seq), err
+	seq, err := c.cl.AwaitACK(uint32(len(data) - dropped))
+	return int(seq) + dropped, err
 }

@@ -27,9 +27,10 @@ import (
 type Option func(*options) error
 
 type options struct {
-	timeout     time.Duration
-	encoder     jsonEncoder
-	compressLvl int
+	timeout                time.Duration
+	encoder                jsonEncoder
+	compressLvl            int
+	failSerializationError bool
 }
 
 type jsonEncoder func(interface{}) ([]byte, error)
@@ -65,10 +66,18 @@ func CompressionLevel(l int) Option {
 	}
 }
 
+func FailOnSerializationError(b bool) Option {
+	return func(opt *options) error {
+		opt.failSerializationError = b
+		return nil
+	}
+}
+
 func applyOptions(opts []Option) (options, error) {
 	o := options{
-		encoder: json.Marshal,
-		timeout: 30 * time.Second,
+		encoder:                json.Marshal,
+		timeout:                30 * time.Second,
+		failSerializationError: false,
 	}
 
 	for _, opt := range opts {

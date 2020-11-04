@@ -37,9 +37,10 @@ type AsyncClient struct {
 }
 
 type ackMessage struct {
-	cb  AsyncSendCallback
-	seq uint32
-	err error
+	cb      AsyncSendCallback
+	seq     uint32
+	dropped int
+	err     error
 }
 
 // AsyncSendCallback callback function. Upon completion seq contains the last
@@ -117,19 +118,22 @@ func (c *AsyncClient) Close() error {
 // Upon completion cb will be called with last ACKed index into active batch.
 // Returns error if communication or serialization to JSON failed.
 func (c *AsyncClient) Send(cb AsyncSendCallback, data []interface{}) error {
-	if err := c.cl.Send(data); err != nil {
+	dropped, err := c.cl.Send(data)
+	if err != nil || dropped == len(data) {
 		c.ch <- ackMessage{
-			seq: 0,
-			cb:  cb,
-			err: err,
+			seq:     0,
+			dropped: dropped,
+			cb:      cb,
+			err:     err,
 		}
 		return err
 	}
 
 	c.ch <- ackMessage{
-		seq: uint32(len(data)),
-		cb:  cb,
-		err: nil,
+		seq:     uint32(len(data) - dropped),
+		dropped: dropped,
+		cb:      cb,
+		err:     nil,
 	}
 	return nil
 }
@@ -164,14 +168,14 @@ func (c *AsyncClient) ackLoop() {
 	defer c.wg.Done()
 
 	for msg := range c.ch {
-		if msg.err != nil {
+		if msg.err != nil || msg.seq == 0 {
 			err = msg.err
-			msg.cb(msg.seq, msg.err)
+			msg.cb(msg.seq+uint32(msg.dropped), msg.err)
 			return
 		}
 
 		seq, err = c.cl.AwaitACK(msg.seq)
-		msg.cb(seq, err)
+		msg.cb(seq+uint32(msg.dropped), err)
 		if err != nil {
 			c.cl.Close()
 			return

@@ -107,9 +107,9 @@ func (c *Client) Close() error {
 
 // Send attempts to JSON-encode and send all events without waiting for ACK.
 // Returns error if sending or serialization fails.
-func (c *Client) Send(data []interface{}) error {
+func (c *Client) Send(data []interface{}) (dropped int, err error) {
 	if len(data) == 0 {
-		return nil
+		return 0, nil
 	}
 
 	// 1. create window message
@@ -134,41 +134,47 @@ func (c *Client) Send(data []interface{}) error {
 		// compress payload
 		w, err := zlib.NewWriterLevel(c.wb, c.opts.compressLvl)
 		if err != nil {
-			return err
+			return len(data), err
 		}
 
-		if err := c.serialize(w, data); err != nil {
-			return err
+		if dropped, err = c.serialize(w, data); err != nil {
+			return len(data), err
 		}
 
 		if err := w.Close(); err != nil {
-			return err
+			return len(data), err
 		}
 
 		// write compress header
 		payloadSz := c.wb.Len() - offPayload
 		binary.BigEndian.PutUint32(c.wb.Bytes()[offSz:], uint32(payloadSz))
 	} else {
-		if err := c.serialize(c.wb, data); err != nil {
-			return err
+		var err error
+		if dropped, err = c.serialize(c.wb, data); err != nil {
+			return len(data), err
 		}
+	}
+
+	if dropped == len(data) {
+		// all events have been dropped, we're done.
+		return dropped, nil
 	}
 
 	// 3. send buffer
 	if err := c.setWriteDeadline(); err != nil {
-		return err
+		return len(data), err
 	}
 	payload := c.wb.Bytes()
 	for len(payload) > 0 {
 		n, err := c.conn.Write(payload)
 		if err != nil {
-			return err
+			return dropped, err
 		}
 
 		payload = payload[n:]
 	}
 
-	return nil
+	return dropped, nil
 }
 
 // ReceiveACK awaits and reads next ACK response or error. Note: Server might
@@ -219,11 +225,17 @@ func (c *Client) AwaitACK(count uint32) (uint32, error) {
 	return ackSeq, nil
 }
 
-func (c *Client) serialize(out io.Writer, data []interface{}) error {
+func (c *Client) serialize(out io.Writer, data []interface{}) (dropped int, err error) {
 	for i, d := range data {
 		b, err := c.opts.encoder(d)
 		if err != nil {
-			return err
+			err = &EventSerializationError{At: i, Data: d, Reason: err}
+			if c.opts.failSerializationError {
+				return 1, err
+			}
+
+			dropped++
+			continue
 		}
 
 		// Write JSON Data Frame:
@@ -238,7 +250,7 @@ func (c *Client) serialize(out io.Writer, data []interface{}) error {
 		writeUint32(out, uint32(len(b)))
 		_, _ = out.Write(b)
 	}
-	return nil
+	return dropped, nil
 }
 
 func (c *Client) setWriteDeadline() error {
