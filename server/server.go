@@ -23,11 +23,12 @@ import (
 	"io"
 	"net"
 	"sync"
+	"time"
 
 	"github.com/elastic/go-lumber/lj"
 	"github.com/elastic/go-lumber/log"
-	"github.com/elastic/go-lumber/server/v1"
-	"github.com/elastic/go-lumber/server/v2"
+	v1 "github.com/elastic/go-lumber/server/v1"
+	v2 "github.com/elastic/go-lumber/server/v2"
 )
 
 // Server serves multiple lumberjack clients.
@@ -230,17 +231,26 @@ func (s *server) run() {
 	}
 }
 
+var (
+	NoDeadline = time.Time{}
+)
+
 func (s *server) handle(client net.Conn) {
 	// read first byte and decide multiplexer
 
 	sig := make(chan struct{})
 
 	go func() {
+		defer close(sig)
+
+		client.SetReadDeadline(time.Now().Add(time.Second * 2))
+
 		var buf [1]byte
 		if _, err := io.ReadFull(client, buf[:]); err != nil {
 			return
 		}
-		close(sig)
+
+		client.SetReadDeadline(NoDeadline)
 
 		for _, m := range s.mux {
 			if m.mux != buf[0] {
@@ -251,6 +261,7 @@ func (s *server) handle(client net.Conn) {
 			m.l.ch <- conn
 			return
 		}
+
 		client.Close()
 	}()
 
