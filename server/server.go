@@ -236,11 +236,13 @@ func (s *server) handle(client net.Conn) {
 	sig := make(chan struct{})
 
 	go func() {
+		defer close(sig)
+
 		var buf [1]byte
 		if _, err := io.ReadFull(client, buf[:]); err != nil {
+			client.Close()
 			return
 		}
-		close(sig)
 
 		for _, m := range s.mux {
 			if m.mux != buf[0] {
