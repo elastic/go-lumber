@@ -31,6 +31,20 @@ pipeline {
         stash allowEmpty: true, name: 'source', useDefaultExcludes: false
       }
     }
+    stage('verify'){
+      steps {
+        withGithubNotify(context: 'Verify') {
+          deleteDir()
+          unstash 'source'
+          withGoEnv(pkgs: ['github.com/elastic/go-licenser']){
+            dir("${BASE_DIR}"){
+              sh(label: 'Go build', script: 'go mod verify')
+              sh(label: 'Go build', script: 'go-licenser -d')
+            }
+          }
+        }
+      }
+    }
     stage('Test') {
       failFast false
       matrix {
