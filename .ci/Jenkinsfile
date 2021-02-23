@@ -34,6 +34,7 @@ pipeline {
     stage('Test') {
       failFast false
       matrix {
+        agent { label "${PLATFORM}" }
         options { skipDefaultCheckout() }
         axes {
           axis {
@@ -60,7 +61,6 @@ pipeline {
             }
           }
           stage('Test') {
-            agent { label "${PLATFORM}" }
             steps {
               withGithubNotify(context: "Test-${GO_VERSION}-${PLATFORM}") {
                 deleteDir()
