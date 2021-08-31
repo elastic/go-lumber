@@ -76,7 +76,7 @@ func (r *reader) ReadBatch() (*lj.Batch, error) {
 		return nil, err
 	}
 
-	return lj.NewBatch(events), nil
+	return lj.NewBatch(events, r.conn), nil
 }
 
 func (r *reader) readEvents(in io.Reader, events []interface{}) ([]interface{}, error) {

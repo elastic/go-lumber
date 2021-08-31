@@ -18,17 +18,24 @@
 // Package lj implements common lumberjack types and functions.
 package lj
 
+import "net"
+
 // Batch is an ACK-able batch of events as has been received by lumberjack
 // server implemenentations. Batches must be ACKed, for the server
 // implementations returning an ACK to it's clients.
 type Batch struct {
 	Events []interface{}
+	Conn   net.Conn
 	ack    chan struct{}
 }
 
 // NewBatch creates a new ACK-able batch.
-func NewBatch(evts []interface{}) *Batch {
-	return &Batch{evts, make(chan struct{})}
+func NewBatch(evts []interface{}, conn net.Conn) *Batch {
+	return &Batch{
+		Events: evts,
+		Conn:   conn,
+		ack:    make(chan struct{}),
+	}
 }
 
 // ACK acknowledges a batch initiating propagation of ACK to clients.
