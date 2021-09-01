@@ -22,18 +22,18 @@ import (
 	"net"
 )
 
+type MuxConn struct {
+	net.Conn
+}
+
 type muxListener struct {
 	net.Listener
 	ch chan net.Conn
 }
 
-type muxConn struct {
-	net.Conn
-}
-
 type versionConn struct {
 	net.Conn
-	parent *muxConn
+	parent *MuxConn
 	v      byte
 }
 
@@ -62,8 +62,8 @@ func (l *muxListener) Close() error {
 	return nil
 }
 
-func newMuxConn(v byte, c net.Conn) *muxConn {
-	mc := &muxConn{}
+func newMuxConn(v byte, c net.Conn) *MuxConn {
+	mc := &MuxConn{}
 	vc := &versionConn{c, mc, v}
 	mc.Conn = vc
 	return mc
