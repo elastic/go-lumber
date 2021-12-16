@@ -1,5 +1,5 @@
 # go-lumber
-[![Build Status](https://beats-ci.elastic.co/job/Library/job/go-lumber-mbp/job/master/badge/icon)](https://beats-ci.elastic.co/job/Library/job/go-lumber-mbp/job/master/)
+[![Build Status](https://beats-ci.elastic.co/job/Library/job/go-lumber-mbp/job/main/badge/icon)](https://beats-ci.elastic.co/job/Library/job/go-lumber-mbp/job/main/)
 [![Go Report
 Card](https://goreportcard.com/badge/github.com/elastic/go-lumber)](https://goreportcard.com/report/github.com/elastic/go-lumber)
 [![Contributors](https://img.shields.io/github/contributors/elastic/go-lumber.svg)](https://github.com/elastic/go-lumber/graphs/contributors)
