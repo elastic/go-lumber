@@ -130,6 +130,7 @@ func (h *defaultHandler) ackLoop() {
 	// Stop ACKing batches in case of error, forcing client to reconnect
 	defer func() {
 		log.Println("drain ack loop")
+		//nolint:revive // This drains the channel.
 		for range h.ch {
 		}
 	}()

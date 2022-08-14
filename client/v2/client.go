@@ -48,7 +48,7 @@ var (
 	empty4 = []byte{0, 0, 0, 0}
 )
 
-// ErrProtocolError is returned if an protocol error was detected in the
+// ErrProtocolError is returned if a protocol error was detected in the
 // conversation with lumberjack server.
 var ErrProtocolError = errors.New("lumberjack protocol error")
 
@@ -178,13 +178,13 @@ func (c *Client) ReceiveACK() (uint32, error) {
 	}
 
 	var msg [6]byte
-	ackbytes := 0
-	for ackbytes < 6 {
-		n, err := c.conn.Read(msg[ackbytes:])
+	ackBytes := 0
+	for ackBytes < 6 {
+		n, err := c.conn.Read(msg[ackBytes:])
 		if err != nil {
 			return 0, err
 		}
-		ackbytes += n
+		ackBytes += n
 	}
 
 	// validate response
@@ -202,7 +202,7 @@ func (c *Client) AwaitACK(count uint32) (uint32, error) {
 	var ackSeq uint32
 	var err error
 
-	// read until all acks
+	// read until all ACKs
 	for ackSeq < count {
 		ackSeq, err = c.ReceiveACK()
 		if err != nil {

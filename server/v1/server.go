@@ -30,7 +30,7 @@ type Server struct {
 	s *internal.Server
 }
 
-// ErrProtocolError is returned if an protocol error was detected in the
+// ErrProtocolError is returned if a protocol error was detected in the
 // conversation with lumberjack server.
 var ErrProtocolError = errors.New("lumberjack protocol error")
 

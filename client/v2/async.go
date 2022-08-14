@@ -113,7 +113,7 @@ func (c *AsyncClient) Close() error {
 }
 
 // Send publishes a new batch of events by JSON-encoding given batch.
-// Send blocks if maximum number of allowed asynchrounous calls is still active.
+// Send blocks if maximum number of allowed asynchronous calls is still active.
 // Upon completion cb will be called with last ACKed index into active batch.
 // Returns error if communication or serialization to JSON failed.
 func (c *AsyncClient) Send(cb AsyncSendCallback, data []interface{}) error {

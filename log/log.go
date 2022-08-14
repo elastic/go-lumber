@@ -42,13 +42,13 @@ func Printf(format string, args ...interface{}) {
 	Logger.Printf(format, args...)
 }
 
-// Println calls Logger.Println to print to the standard logger. Arguments are
+// Println calls Logger.Println to write to the standard logger. Arguments are
 // handled in the manner of fmt.Println.
 func Println(args ...interface{}) {
 	Logger.Println(args...)
 }
 
-// Print calls Logger.Print to print to the standard logger. Arguments are
+// Print calls Logger.Print to write to the standard logger. Arguments are
 // handled in the manner of fmt.Print.
 func Print(args ...interface{}) {
 	Logger.Print(args...)
