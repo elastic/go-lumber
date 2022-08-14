@@ -37,10 +37,8 @@ type versionConn struct {
 	v      byte
 }
 
-var (
-	// ErrListenerClosed indicates the multiplexing network listener being closed.
-	ErrListenerClosed = errors.New("listener closed")
-)
+// ErrListenerClosed indicates the multiplexing network listener being closed.
+var ErrListenerClosed = errors.New("listener closed")
 
 func newMuxListener(l net.Listener) *muxListener {
 	return &muxListener{l, make(chan net.Conn, 1)}

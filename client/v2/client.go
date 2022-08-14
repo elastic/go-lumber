@@ -48,11 +48,9 @@ var (
 	empty4 = []byte{0, 0, 0, 0}
 )
 
-var (
-	// ErrProtocolError is returned if an protocol error was detected in the
-	// conversation with lumberjack server.
-	ErrProtocolError = errors.New("lumberjack protocol error")
-)
+// ErrProtocolError is returned if an protocol error was detected in the
+// conversation with lumberjack server.
+var ErrProtocolError = errors.New("lumberjack protocol error")
 
 // NewWithConn create a new lumberjack client with an existing and active
 // connection.

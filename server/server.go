@@ -62,11 +62,9 @@ type muxServer struct {
 	server Server
 }
 
-var (
-	// ErrNoVersionEnabled indicates no lumberjack protocol version being enabled
-	// when instantiating a server.
-	ErrNoVersionEnabled = errors.New("No protocol version enabled")
-)
+// ErrNoVersionEnabled indicates no lumberjack protocol version being enabled
+// when instantiating a server.
+var ErrNoVersionEnabled = errors.New("No protocol version enabled")
 
 // NewWithListener creates a new Server using an existing net.Listener. Use
 // options V1 and V2 to enable wanted protocol versions.

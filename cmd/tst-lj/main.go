@@ -21,7 +21,7 @@
 // server supports all lumberjack protocol versions, which must be explicitely enabled
 // from command line. For printing list of known command line flags run:
 //
-//  tst-lj -h
+//	tst-lj -h
 package main
 
 import (

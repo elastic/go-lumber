@@ -178,5 +178,4 @@ func (h *defaultHandler) waitACK(batch *lj.Batch) error {
 			}
 		}
 	}
-
 }
