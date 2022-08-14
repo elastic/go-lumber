@@ -21,7 +21,7 @@
 // server supports all lumberjack protocol versions, which must be explicitely enabled
 // from command line. For printing list of known command line flags run:
 //
-//  tst-lj -h
+//	tst-lj -h
 package main
 
 import (
@@ -75,7 +75,7 @@ func main() {
 	}()
 
 	printLog := func(batch *lj.Batch) bool {
-		log.Printf("Received batch of %v events\n", len(batch.Events))
+		log.Printf("Received batch of %v events from %s", len(batch.Events), batch.SourceAddr)
 		return true
 	}
 
