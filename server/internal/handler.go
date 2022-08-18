@@ -73,8 +73,6 @@ func DefaultHandler(
 }
 
 func (h *defaultHandler) Run() {
-	defer close(h.ch)
-
 	// start async routine for returning ACKs to client.
 	// Sends ACK of 0 every 'keepalive' seconds to signal
 	// client the batch still being in pipeline
@@ -94,6 +92,7 @@ func (h *defaultHandler) Stop() {
 func (h *defaultHandler) handle() error {
 	log.Printf("Start client handler")
 	defer log.Printf("client handler stopped")
+	defer close(h.ch)
 	defer h.Stop()
 
 	for {
@@ -130,6 +129,7 @@ func (h *defaultHandler) ackLoop() {
 	// Stop ACKing batches in case of error, forcing client to reconnect
 	defer func() {
 		log.Println("drain ack loop")
+		//nolint:revive // This drains the channel.
 		for range h.ch {
 		}
 	}()
@@ -178,5 +178,4 @@ func (h *defaultHandler) waitACK(batch *lj.Batch) error {
 			}
 		}
 	}
-
 }

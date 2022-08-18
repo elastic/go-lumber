@@ -18,10 +18,10 @@
 // Lumberjack server test tool.
 //
 // Create lumberjack server endpoint ACKing all received batches only. The
-// server supports all lumberjack protocol versions, which must be explicitely enabled
+// server supports all lumberjack protocol versions, which must be explicitly enabled
 // from command line. For printing list of known command line flags run:
 //
-//  tst-lj -h
+//	tst-lj -h
 package main
 
 import (
@@ -30,6 +30,7 @@ import (
 	"log"
 	"os"
 	"os/signal"
+	"syscall"
 	"time"
 
 	"github.com/elastic/go-lumber/lj"
@@ -64,7 +65,7 @@ func main() {
 	}
 
 	sig := make(chan os.Signal, 1)
-	signal.Notify(sig, os.Interrupt, os.Kill)
+	signal.Notify(sig, os.Interrupt, syscall.SIGTERM)
 	go func() {
 		<-sig
 		if rl != nil {

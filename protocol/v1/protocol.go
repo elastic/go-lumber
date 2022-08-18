@@ -15,7 +15,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-// Package v1 proviades common lumberjack protocol version 1 definitions.
+// Package v1 provides common lumberjack protocol version 1 definitions.
 package v1
 
 // Version declares the protocol revision supported by this package.

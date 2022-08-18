@@ -26,8 +26,8 @@ import (
 
 	"github.com/elastic/go-lumber/lj"
 	"github.com/elastic/go-lumber/log"
-	"github.com/elastic/go-lumber/server/v1"
-	"github.com/elastic/go-lumber/server/v2"
+	v1 "github.com/elastic/go-lumber/server/v1"
+	v2 "github.com/elastic/go-lumber/server/v2"
 )
 
 // Server serves multiple lumberjack clients.
@@ -62,11 +62,9 @@ type muxServer struct {
 	server Server
 }
 
-var (
-	// ErrNoVersionEnabled indicates no lumberjack protocol version being enabled
-	// when instantiating a server.
-	ErrNoVersionEnabled = errors.New("No protocol version enabled")
-)
+// ErrNoVersionEnabled indicates no lumberjack protocol version being enabled
+// when instantiating a server.
+var ErrNoVersionEnabled = errors.New("no protocol version enabled")
 
 // NewWithListener creates a new Server using an existing net.Listener. Use
 // options V1 and V2 to enable wanted protocol versions.

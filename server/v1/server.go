@@ -30,11 +30,9 @@ type Server struct {
 	s *internal.Server
 }
 
-var (
-	// ErrProtocolError is returned if an protocol error was detected in the
-	// conversation with lumberjack server.
-	ErrProtocolError = errors.New("lumberjack protocol error")
-)
+// ErrProtocolError is returned if a protocol error was detected in the
+// conversation with lumberjack server.
+var ErrProtocolError = errors.New("lumberjack protocol error")
 
 // NewWithListener creates a new Server using an existing net.Listener.
 func NewWithListener(l net.Listener, opts ...Option) (*Server, error) {

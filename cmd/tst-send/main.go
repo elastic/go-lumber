@@ -19,7 +19,7 @@
 //
 // For list of known command line flags run:
 //
-//  tst-send -h
+//	tst-send -h
 package main
 
 import (
@@ -32,14 +32,14 @@ import (
 	"strings"
 	"time"
 
-	"github.com/elastic/go-lumber/client/v2"
+	v2 "github.com/elastic/go-lumber/client/v2"
 )
 
 func main() {
 	connect := flag.String("c", "localhost:5044", "Remote address")
 	compress := flag.Int("compress", 3, "Compression level (0-9)")
 	timeout := flag.Duration("timeout", 30*time.Second, "Connection timeouts")
-	batchSize := flag.Int("batch", 2048, "Batch size")
+	batchSize := flag.Int64("batch", 2048, "Batch size")
 	pipelined := flag.Int("pipeline", 0, "enabled pipeline mode with number of batches kept in pipeline")
 	httpprof := flag.String("httpprof", ":6060", "HTTP profiling server address")
 	flag.Parse()
@@ -50,11 +50,12 @@ func main() {
 	for i := range batch {
 		batch[i] = makeEvent()
 	}
-	L := int64(len(batch))
 
 	go func() {
 		log.Printf("Listening: %v\n", *httpprof)
-		http.ListenAndServe(*httpprof, nil)
+		if err := http.ListenAndServe(*httpprof, nil); err != nil {
+			log.Fatal("Failed to start HTTP server:", err)
+		}
 	}()
 
 	log.Printf("connect to: %v", *connect)
@@ -74,7 +75,7 @@ func main() {
 				return
 			}
 
-			stat.Add(L)
+			stat.Add(*batchSize)
 		}
 	} else {
 		cl, err := v2.AsyncDial(*connect,
@@ -93,7 +94,7 @@ func main() {
 					return
 				}
 
-				stat.Add(L)
+				stat.Add(*batchSize)
 			}
 
 			err := cl.Send(cb, batch)
@@ -105,8 +106,7 @@ func main() {
 	}
 }
 
-var (
-	text = strings.Split(`Lorem ipsum dolor sit amet, consetetur sadipscing elitr,
+var text = strings.Split(`Lorem ipsum dolor sit amet, consetetur sadipscing elitr,
 sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat,
 sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet
 clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.
@@ -114,7 +114,6 @@ Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod
 tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At
 vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren,
 no sea takimata sanctus est Lorem ipsum dolor sit amet.`, "\n")
-)
 
 func makeEvent() interface{} {
 	line := text[rand.Intn(len(text))]
