@@ -6,7 +6,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Added
 
-- Add connection metadata to `lj.Batch`. [#22](https://github.com/elastic/go-lumber/pull/22)
+- Add connection metadata to `lj.Batch`. [#29](https://github.com/elastic/go-lumber/pull/29)
 
 ### Changed
 
