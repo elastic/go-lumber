@@ -76,7 +76,7 @@ func main() {
 	}()
 
 	printLog := func(batch *lj.Batch) bool {
-		log.Printf("Received batch of %v events from %s", len(batch.Events), batch.SourceAddr)
+		log.Printf("Received batch of %v events from %s", len(batch.Events), batch.RemoteAddr)
 		return true
 	}
 

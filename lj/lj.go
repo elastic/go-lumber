@@ -28,7 +28,7 @@ import (
 type Batch struct {
 	ack        chan struct{}
 	TLS        *tls.ConnectionState // TLS connection metadata. Nil for non-TLS connections.
-	SourceAddr string               // Source address of the connection.
+	RemoteAddr string               // Source address of the connection.
 	Events     []interface{}
 }
 
@@ -45,7 +45,7 @@ func NewBatchWithSourceMetadata(events []interface{}, remoteAddr string, tlsStat
 	return &Batch{
 		ack:        make(chan struct{}),
 		TLS:        tlsState,
-		SourceAddr: remoteAddr,
+		RemoteAddr: remoteAddr,
 		Events:     events,
 	}
 }
