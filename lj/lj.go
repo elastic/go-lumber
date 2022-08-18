@@ -33,7 +33,15 @@ type Batch struct {
 }
 
 // NewBatch creates a new ACK-able batch.
-func NewBatch(events []interface{}, remoteAddr string, tlsState *tls.ConnectionState) *Batch {
+func NewBatch(events []interface{}) *Batch {
+	return NewBatchWithSourceMetadata(events, "", nil)
+}
+
+// NewBatchWithSourceMetadata creates a new ACK-able batch with metadata about
+// the source of the batch. remoteAddr is the origin address (ip and port).
+// tlsState is the TLS connection metadata when the server uses TLS, otherwise
+// it should be nil.
+func NewBatchWithSourceMetadata(events []interface{}, remoteAddr string, tlsState *tls.ConnectionState) *Batch {
 	return &Batch{
 		ack:        make(chan struct{}),
 		TLS:        tlsState,
