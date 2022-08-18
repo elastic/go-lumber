@@ -22,9 +22,9 @@ import (
 	"crypto/tls"
 )
 
-// Batch is an ACK-able batch of events as has been received by lumberjack
-// server implemenentations. Batches must be ACKed, for the server
-// implementations returning an ACK to it's clients.
+// Batch is an ACK-able batch of events that has been received by lumberjack
+// server implementations. Batches must be ACKed for the server
+// implementations returning an ACK to its clients.
 type Batch struct {
 	ack        chan struct{}
 	TLS        *tls.ConnectionState // TLS connection metadata. Nil for non-TLS connections.
@@ -33,12 +33,12 @@ type Batch struct {
 }
 
 // NewBatch creates a new ACK-able batch.
-func NewBatch(evts []interface{}, remoteAddr string, tlsState *tls.ConnectionState) *Batch {
+func NewBatch(events []interface{}, remoteAddr string, tlsState *tls.ConnectionState) *Batch {
 	return &Batch{
 		ack:        make(chan struct{}),
 		TLS:        tlsState,
 		SourceAddr: remoteAddr,
-		Events:     evts,
+		Events:     events,
 	}
 }
 
