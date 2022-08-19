@@ -18,17 +18,36 @@
 // Package lj implements common lumberjack types and functions.
 package lj
 
+import (
+	"crypto/tls"
+)
+
 // Batch is an ACK-able batch of events that has been received by lumberjack
 // server implementations. Batches must be ACKed for the server
 // implementations returning an ACK to its clients.
 type Batch struct {
-	Events []interface{}
-	ack    chan struct{}
+	ack        chan struct{}
+	TLS        *tls.ConnectionState // TLS connection metadata. Nil for non-TLS connections.
+	RemoteAddr string               // Source address of the connection.
+	Events     []interface{}
 }
 
 // NewBatch creates a new ACK-able batch.
 func NewBatch(events []interface{}) *Batch {
-	return &Batch{events, make(chan struct{})}
+	return NewBatchWithSourceMetadata(events, "", nil)
+}
+
+// NewBatchWithSourceMetadata creates a new ACK-able batch with metadata about
+// the source of the batch. remoteAddr is the origin address (ip and port).
+// tlsState is the TLS connection metadata when the server uses TLS, otherwise
+// it should be nil.
+func NewBatchWithSourceMetadata(events []interface{}, remoteAddr string, tlsState *tls.ConnectionState) *Batch {
+	return &Batch{
+		ack:        make(chan struct{}),
+		TLS:        tlsState,
+		RemoteAddr: remoteAddr,
+		Events:     events,
+	}
 }
 
 // ACK acknowledges a batch initiating propagation of ACK to clients.

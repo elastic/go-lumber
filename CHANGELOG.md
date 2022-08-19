@@ -6,6 +6,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Added
 
+- Add connection metadata to `lj.Batch`. [#29](https://github.com/elastic/go-lumber/pull/29)
+
 ### Changed
 
 - Require Go 1.17 to use module. [#28](https://github.com/elastic/go-lumber/pull/28)

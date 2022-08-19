@@ -19,6 +19,7 @@ package v1
 
 import (
 	"bufio"
+	"crypto/tls"
 	"encoding/binary"
 	"io"
 	"net"
@@ -32,18 +33,26 @@ import (
 )
 
 type reader struct {
-	in      *bufio.Reader
-	conn    net.Conn
-	timeout time.Duration
-	buf     []byte
+	conn       net.Conn
+	in         *bufio.Reader
+	tlsState   *tls.ConnectionState
+	remoteAddr string
+	buf        []byte
+	timeout    time.Duration
 }
 
 func newReader(c net.Conn, to time.Duration) *reader {
 	r := &reader{
-		in:      bufio.NewReader(c),
-		conn:    c,
-		timeout: to,
-		buf:     make([]byte, 0, 64),
+		conn:       c,
+		in:         bufio.NewReader(c),
+		remoteAddr: c.RemoteAddr().String(),
+		buf:        make([]byte, 0, 64),
+		timeout:    to,
+	}
+
+	if tlsConn, ok := c.(*tls.Conn); ok {
+		s := tlsConn.ConnectionState()
+		r.tlsState = &s
 	}
 	return r
 }
@@ -76,7 +85,7 @@ func (r *reader) ReadBatch() (*lj.Batch, error) {
 		return nil, err
 	}
 
-	return lj.NewBatch(events), nil
+	return lj.NewBatchWithSourceMetadata(events, r.remoteAddr, r.tlsState), nil
 }
 
 func (r *reader) readEvents(in io.Reader, events []interface{}) ([]interface{}, error) {
