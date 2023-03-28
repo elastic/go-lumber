@@ -12,6 +12,12 @@ permissions:
   contents: read
   pull-requests: read
 
+## Concurrency only allowed in the main branch.
+## So old builds running for old commits within the same Pull Request are cancelled
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
+
 jobs:
   golangci:
     name: golangci-lint
@@ -34,7 +40,7 @@ jobs:
           version: latest
           only-new-issues: true
 
-      - name: Lint
+      - name: go-licenser
         run: |-
           go get github.com/elastic/go-licenser
           go run github.com/elastic/go-licenser -d
