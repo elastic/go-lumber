@@ -36,5 +36,4 @@ jobs:
 
       - name: Lint
         run: |-
-          go get github.com/elastic/go-licenser
-          go-licenser -d
+          go run github.com/elastic/go-licenser -d
