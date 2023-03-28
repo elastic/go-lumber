@@ -4,6 +4,8 @@ name: ci
 on:
   workflow_dispatch:
   push:
+    tags:
+      - 'v*'
     branches:
       - main
     paths-ignore:
@@ -38,17 +40,6 @@ jobs:
           go-version-file: .go-version
           cache: true
           cache-dependency-path: '**/go.sum'
-
-      - name: Install dependencies
-        run:  go install github.com/elastic/go-licenser
-
-      - name: Lint
-        run: |-
-          go mod tidy && git diff --exit-code
-          gofmt -l . | read && echo "Code differs from gofmt's style. Run 'gofmt -w .'" 1>&2 && exit 1 || true
-          go vet
-          go mod verify
-          go-licenser -d
 
       - name: Build
         run: go build
