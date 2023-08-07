@@ -8,13 +8,7 @@ on:
       - 'v*'
     branches:
       - main
-    paths-ignore:
-      - '**.md'
-      - '**.asciidoc'
-  pull_request:
-    paths-ignore:
-      - '**.md'
-      - '**.asciidoc'
+  pull_request: ~
 
 permissions:
   contents: read
