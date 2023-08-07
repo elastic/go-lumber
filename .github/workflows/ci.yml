@@ -1,0 +1,56 @@
+---
+name: ci
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - 'v*'
+    branches:
+      - main
+  pull_request: ~
+
+permissions:
+  contents: read
+
+## Concurrency only allowed in the main branch.
+## So old builds running for old commits within the same Pull Request are cancelled
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
+
+jobs:
+  test:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [macos-latest, ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: actions/setup-go@v4
+        with:
+          go-version-file: .go-version
+          cache: true
+          cache-dependency-path: '**/go.sum'
+
+      - name: Build
+        run: go build
+
+      - name: Test
+        run: |
+          if [ "$RUNNER_OS" == "Windows" ]; then
+            .ci/test.bat
+          else
+            .ci/test.sh
+          fi
+        shell: bash
+
+      - name: Store test results
+        if: success() || failure()
+        continue-on-error: true
+        uses: actions/upload-artifact@v3
+        with:
+          name: test-results
+          path: "build/junit-*.xml"
