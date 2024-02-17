@@ -7,6 +7,10 @@ on:
     workflows: [ci]
     types: [completed]
 
+permissions:
+  contents: read
+  actions: read
+
 jobs:
   report:
     runs-on: ubuntu-latest
