@@ -201,13 +201,22 @@ func (c *Client) ReceiveACK() (uint32, error) {
 func (c *Client) AwaitACK(count uint32) (uint32, error) {
 	var ackSeq uint32
 	var err error
+	// Create a timer outside the loop
+	timer := time.NewTimer(c.opts.timeout * time.Duration(count))
+	defer timer.Stop()
 
 	// read until all ACKs
 	for ackSeq < count {
-		ackSeq, err = c.ReceiveACK()
-		if err != nil {
-			return ackSeq, err
+		select {
+		case <-timer.C:
+			return ackSeq, fmt.Errorf("timeout waiting for ACK (seq=%v, expected=%v)", ackSeq, count)
+		default:
+			ackSeq, err = c.ReceiveACK()
+			if err != nil {
+				return ackSeq, err
+			}
 		}
+
 	}
 
 	if ackSeq > count {
