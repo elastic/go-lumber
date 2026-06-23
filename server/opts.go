@@ -29,14 +29,19 @@ import (
 // Option type for configuring server run options.
 type Option func(*options) error
 
+// DefaultMaxWindowSize is the default upper bound on the number of events
+// a client may announce in a single batch window frame.
+const DefaultMaxWindowSize = 10000
+
 type options struct {
-	timeout   time.Duration
-	keepalive time.Duration
-	decoder   jsonDecoder
-	tls       *tls.Config
-	v1        bool
-	v2        bool
-	ch        chan *lj.Batch
+	timeout       time.Duration
+	keepalive     time.Duration
+	maxWindowSize int
+	decoder       jsonDecoder
+	tls           *tls.Config
+	v1            bool
+	v2            bool
+	ch            chan *lj.Batch
 }
 
 type jsonDecoder func([]byte, interface{}) error
@@ -106,14 +111,25 @@ func V2(b bool) Option {
 	}
 }
 
+// MaxWindowSize configures the maximum number of events a client may
+// announce in a single batch window frame. Frames exceeding this limit
+// are rejected. A value of zero or negative disables the check.
+func MaxWindowSize(n int) Option {
+	return func(opt *options) error {
+		opt.maxWindowSize = n
+		return nil
+	}
+}
+
 func applyOptions(opts []Option) (options, error) {
 	o := options{
-		decoder:   json.Unmarshal,
-		timeout:   30 * time.Second,
-		keepalive: 3 * time.Second,
-		v1:        true,
-		v2:        true,
-		tls:       nil,
+		decoder:       json.Unmarshal,
+		timeout:       30 * time.Second,
+		keepalive:     3 * time.Second,
+		maxWindowSize: DefaultMaxWindowSize,
+		v1:            true,
+		v2:            true,
+		tls:           nil,
 	}
 
 	for _, opt := range opts {

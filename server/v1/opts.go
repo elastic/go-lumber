@@ -28,10 +28,13 @@ import (
 // Option type for configuring server run options.
 type Option func(*options) error
 
+const defaultMaxWindowSize = 10000
+
 type options struct {
-	timeout time.Duration
-	tls     *tls.Config
-	ch      chan *lj.Batch
+	timeout       time.Duration
+	maxWindowSize int
+	tls           *tls.Config
+	ch            chan *lj.Batch
 }
 
 // Timeout configures server network timeouts.
@@ -63,10 +66,21 @@ func Channel(c chan *lj.Batch) Option {
 	}
 }
 
+// MaxWindowSize configures the maximum number of events a client may
+// announce in a single batch window frame. Frames exceeding this limit
+// are rejected. A value of zero or negative disables the check.
+func MaxWindowSize(n int) Option {
+	return func(opt *options) error {
+		opt.maxWindowSize = n
+		return nil
+	}
+}
+
 func applyOptions(opts []Option) (options, error) {
 	o := options{
-		timeout: 30 * time.Second,
-		tls:     nil,
+		timeout:       30 * time.Second,
+		maxWindowSize: defaultMaxWindowSize,
+		tls:           nil,
 	}
 
 	for _, opt := range opts {
