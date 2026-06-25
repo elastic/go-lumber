@@ -34,6 +34,10 @@ type Server struct {
 // conversation with lumberjack server.
 var ErrProtocolError = errors.New("lumberjack protocol error")
 
+// ErrWindowTooLarge is returned when a client sends a window size that
+// exceeds the configured maximum.
+var ErrWindowTooLarge = errors.New("lumberjack window size too large")
+
 // NewWithListener creates a new Server using an existing net.Listener.
 func NewWithListener(l net.Listener, opts ...Option) (*Server, error) {
 	return newServer(opts, func(cfg internal.Config) (*internal.Server, error) {
@@ -89,7 +93,7 @@ func newServer(
 	}
 
 	mkRW := func(client net.Conn) (internal.BatchReader, internal.ACKWriter, error) {
-		r := newReader(client, o.timeout, o.decoder)
+		r := newReader(client, o.timeout, o.maxWindowSize, o.decoder)
 		w := newWriter(client, o.timeout)
 		return r, w, nil
 	}

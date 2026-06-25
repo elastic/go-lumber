@@ -33,25 +33,27 @@ import (
 )
 
 type reader struct {
-	conn       net.Conn
-	in         *bufio.Reader
-	tlsState   *tls.ConnectionState
-	decoder    jsonDecoder
-	remoteAddr string
-	buf        []byte
-	timeout    time.Duration
+	conn          net.Conn
+	in            *bufio.Reader
+	tlsState      *tls.ConnectionState
+	decoder       jsonDecoder
+	remoteAddr    string
+	buf           []byte
+	timeout       time.Duration
+	maxWindowSize uint32
 }
 
 type jsonDecoder func([]byte, interface{}) error
 
-func newReader(c net.Conn, to time.Duration, jsonDecoder jsonDecoder) *reader {
+func newReader(c net.Conn, to time.Duration, maxWindowSize uint32, jsonDecoder jsonDecoder) *reader {
 	r := &reader{
-		conn:       c,
-		in:         bufio.NewReader(c),
-		decoder:    jsonDecoder,
-		remoteAddr: c.RemoteAddr().String(),
-		buf:        make([]byte, 0, 64),
-		timeout:    to,
+		conn:          c,
+		in:            bufio.NewReader(c),
+		decoder:       jsonDecoder,
+		remoteAddr:    c.RemoteAddr().String(),
+		buf:           make([]byte, 0, 64),
+		timeout:       to,
+		maxWindowSize: maxWindowSize,
 	}
 
 	if tlsConn, ok := c.(*tls.Conn); ok {
@@ -69,14 +71,18 @@ func (r *reader) ReadBatch() (*lj.Batch, error) {
 		return nil, err
 	}
 
-	if win[0] != protocol.CodeVersion && win[1] != protocol.CodeWindowSize {
-		log.Printf("Expected window from. Received %v", win[0:1])
+	if win[0] != protocol.CodeVersion || win[1] != protocol.CodeWindowSize {
+		log.Printf("Expected window frame. Received %v", win[0:2])
 		return nil, ErrProtocolError
 	}
 
-	count := int(binary.BigEndian.Uint32(win[2:]))
+	count := binary.BigEndian.Uint32(win[2:])
 	if count == 0 {
 		return nil, nil
+	}
+	if r.maxWindowSize > 0 && count > r.maxWindowSize {
+		log.Printf("Window size %d exceeds maximum %d", count, r.maxWindowSize)
+		return nil, ErrWindowTooLarge
 	}
 
 	if err := r.conn.SetReadDeadline(time.Now().Add(r.timeout)); err != nil {

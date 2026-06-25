@@ -156,6 +156,7 @@ func newServer(l net.Listener, opts ...Option) (Server, error) {
 		servers = append(servers, func(l net.Listener) (Server, byte, error) {
 			s, err := v1.NewWithListener(l,
 				v1.Timeout(cfg.timeout),
+				v1.MaxWindowSize(cfg.maxWindowSize),
 				v1.Channel(cfg.ch),
 				v1.TLS(cfg.tls))
 			return s, '1', err
@@ -166,6 +167,7 @@ func newServer(l net.Listener, opts ...Option) (Server, error) {
 			s, err := v2.NewWithListener(l,
 				v2.Keepalive(cfg.keepalive),
 				v2.Timeout(cfg.timeout),
+				v2.MaxWindowSize(cfg.maxWindowSize),
 				v2.Channel(cfg.ch),
 				v2.TLS(cfg.tls),
 				v2.JSONDecoder(cfg.decoder))
