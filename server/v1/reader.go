@@ -39,10 +39,10 @@ type reader struct {
 	remoteAddr    string
 	buf           []byte
 	timeout       time.Duration
-	maxWindowSize int
+	maxWindowSize uint32
 }
 
-func newReader(c net.Conn, to time.Duration, maxWindowSize int) *reader {
+func newReader(c net.Conn, to time.Duration, maxWindowSize uint32) *reader {
 	r := &reader{
 		conn:          c,
 		in:            bufio.NewReader(c),
@@ -72,7 +72,7 @@ func (r *reader) ReadBatch() (*lj.Batch, error) {
 		return nil, ErrProtocolError
 	}
 
-	count := int(binary.BigEndian.Uint32(win[2:]))
+	count := binary.BigEndian.Uint32(win[2:])
 	if count == 0 {
 		return nil, nil
 	}

@@ -39,7 +39,7 @@ func TestReadBatchWindowTooLarge(t *testing.T) {
 		var frame [6]byte
 		frame[0] = protocol.CodeVersion
 		frame[1] = protocol.CodeWindowSize
-		binary.BigEndian.PutUint32(frame[2:], 200)
+		binary.BigEndian.PutUint32(frame[2:], 101)
 		_, _ = client.Write(frame[:])
 	}()
 
@@ -54,7 +54,7 @@ func TestReadBatchWindowAtLimit(t *testing.T) {
 	defer client.Close()
 	defer srv.Close()
 
-	r := newReader(srv, 5*time.Second, 100, json.Unmarshal)
+	r := newReader(srv, 5*time.Second, 1, json.Unmarshal)
 
 	// Send a window frame exactly at the limit, followed by valid JSON events.
 	go func() {

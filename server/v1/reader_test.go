@@ -37,7 +37,7 @@ func TestReadBatchWindowTooLarge(t *testing.T) {
 		var frame [6]byte
 		frame[0] = protocol.CodeVersion
 		frame[1] = protocol.CodeWindowSize
-		binary.BigEndian.PutUint32(frame[2:], 200)
+		binary.BigEndian.PutUint32(frame[2:], 101)
 		_, _ = client.Write(frame[:])
 	}()
 

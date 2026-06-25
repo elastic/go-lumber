@@ -34,7 +34,7 @@ const defaultMaxWindowSize = 10000
 type options struct {
 	timeout       time.Duration
 	keepalive     time.Duration
-	maxWindowSize int
+	maxWindowSize uint32
 	decoder       jsonDecoder
 	tls           *tls.Config
 	ch            chan *lj.Batch
@@ -92,7 +92,7 @@ func JSONDecoder(decoder func([]byte, interface{}) error) Option {
 // MaxWindowSize configures the maximum number of events a client may
 // announce in a single batch window frame. Frames exceeding this limit
 // are rejected. A value of zero or negative disables the check.
-func MaxWindowSize(n int) Option {
+func MaxWindowSize(n uint32) Option {
 	return func(opt *options) error {
 		opt.maxWindowSize = n
 		return nil

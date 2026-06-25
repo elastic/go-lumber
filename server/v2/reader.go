@@ -40,12 +40,12 @@ type reader struct {
 	remoteAddr    string
 	buf           []byte
 	timeout       time.Duration
-	maxWindowSize int
+	maxWindowSize uint32
 }
 
 type jsonDecoder func([]byte, interface{}) error
 
-func newReader(c net.Conn, to time.Duration, maxWindowSize int, jsonDecoder jsonDecoder) *reader {
+func newReader(c net.Conn, to time.Duration, maxWindowSize uint32, jsonDecoder jsonDecoder) *reader {
 	r := &reader{
 		conn:          c,
 		in:            bufio.NewReader(c),
@@ -76,7 +76,7 @@ func (r *reader) ReadBatch() (*lj.Batch, error) {
 		return nil, ErrProtocolError
 	}
 
-	count := int(binary.BigEndian.Uint32(win[2:]))
+	count := binary.BigEndian.Uint32(win[2:])
 	if count == 0 {
 		return nil, nil
 	}
