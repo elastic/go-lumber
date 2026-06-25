@@ -4,11 +4,22 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
-- Add configurable maximum window size. [#44](https://github.com/elastic/go-lumber/pull/44)
+### Added
+
+### Changed
+
+### Deprecated
+
+### Removed
+
+### Fixed
+
+## [0.2.0]
 
 ### Added
 
 - Add connection metadata to `lj.Batch`. [#29](https://github.com/elastic/go-lumber/pull/29)
+- Add configurable maximum window size. [#44](https://github.com/elastic/go-lumber/pull/44)
 
 ### Changed
 
