@@ -6,6 +6,7 @@ Card](https://goreportcard.com/badge/github.com/elastic/go-lumber)](https://gore
 [![GitHub release](https://img.shields.io/github/release/elastic/go-lumber.svg?label=changelog)](https://github.com/elastic/go-lumber/releases/latest)
 
 Lumberjack protocol client and server implementations for go.
+For the Lumberjack protocol specs, please check [this page](./PROTOCOL.md)
 
 ## Example Server
 
